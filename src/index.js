@@ -42,7 +42,8 @@ module.exports = function (jasmineTrxConfig) {
 
     function buildOutputFilePathBySuite(suite){
         ensureFolderExists(outputFolder);
-        return buildFolderPath(outputFolder) + buildBrowserPath() + suite.description + '.trx' || 'Default.trx';
+        var regex = /[^\w\d-]/g;
+        return buildFolderPath(outputFolder) + buildBrowserPath() + suite.description.replace(regex, '_') + '.trx' || 'Default.trx';
     }
 
     this.jasmineStarted = function (suiteInfo) {
