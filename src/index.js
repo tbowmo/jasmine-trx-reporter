@@ -21,7 +21,8 @@ module.exports = function (jasmineTrxConfig) {
 
         takeScreenshotsOnlyOnFailures = jasmineTrxConfig.takeScreenshotsOnlyOnFailures || false,
         takeScreenshots = jasmineTrxConfig.takeScreenshots || false,
-        outputScreenshotsFolder
+        outputScreenshotsFolder,
+        diffScreenshotName = jasmineTrxConfig.diffScreenshotName || false
         ;
 
     if (groupingSuites) {
@@ -137,10 +138,17 @@ module.exports = function (jasmineTrxConfig) {
         var screenShotName = uuid.v4();
         testResult.executionId = testResult.executionId || uuid.v4();
         testResult.resultFiles = [{ path: screenShotName + '.png' }];
-
+        var screenShotFolder = path.join(outputScreenshotsFolder, 'In', testResult.executionId);
+        
         // trx attachments for a test are expected to reside on a folder with the same name as the executionId
-        ensureFolderExists(path.join(outputScreenshotsFolder, 'In', testResult.executionId));
+        ensureFolderExists(screenShotFolder);
 
+        if (diffScreenshotName && fs.existsSync(diffScreenshotName)) {
+            var shotName = screenShotName + '-' + diffScreenshotName;
+            fs.renameSync(diffScreenshotName, screenShotFolder + '/' + shotName);
+            testResult.resultFiles.push({ path: shotName });
+        }
+           
         if(global.browser && global.browser.takeScreenshot) {
             return global.browser.takeScreenshot().then(function(png) {
                 writeScreenshot(png, path.join(outputScreenshotsFolder, 'In', testResult.executionId, screenShotName + '.png'));
