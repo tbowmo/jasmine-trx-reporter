@@ -221,7 +221,7 @@ module.exports = function (jasmineTrxConfig) {
     function ensureFolderExists(path) {
         if (path) {
             // replacing with mkdirp, because it works recursively
-            mkdirp(path, function (err) {
+            mkdirp.sync(path, null, function (err) {
                 if (err) {
                     if (err.code == 'EEXIST') {
                         //AOK
@@ -235,6 +235,8 @@ module.exports = function (jasmineTrxConfig) {
 
     function writeScreenshot(data, filename) {
         var stream = fs.createWriteStream(filename);
+        stream.on('finish', function () { });
+        stream.on('error', function (err) { });
         stream.write(new Buffer(data, 'base64'));
         stream.end();
     }
